@@ -11,10 +11,13 @@
 ros::Publisher velocity_publisher;
 
 using namespace std;
+const double PI = 3.14159265359;
 //method to move the robot straight
 //declaring move method
-void move(double speed, double distance, bool isForward);
 
+void move(double speed, double distance, bool isForward);
+void rotate(double angular_speed, double angle, bool clockwise);
+double degrees2radians(double angle_in_degrees);
 
 int main(int argc, char **argv)
 {
@@ -25,6 +28,10 @@ int main(int argc, char **argv)
     double speed;
     double distance;
     bool isForward;
+
+    double angular_speed;
+    double angle;
+    bool clockwise;
 
     //Initialize publisher
     velocity_publisher = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel",10);
@@ -37,6 +44,15 @@ int main(int argc, char **argv)
     cout << " Move forward?: ";
     cin >> isForward;
     move(speed, distance, isForward);
+
+    cout << "Enter angular velocity (degrees/sec): ";
+    cin >> angular_speed;
+    cout << "Enter desired angle (degrees): ";
+    cin >> angle;
+    cout << "Clockwise ?: ";
+    cin >> clockwise;
+    rotate(degrees2radians(angular_speed), degrees2radians(angle),clockwise);
+
 
 
 
@@ -87,6 +103,48 @@ void move(double speed, double distance, bool isForward){
     vel_msg.linear.x = 0;
     velocity_publisher.publish(vel_msg);
     
-
 }
+
+void rotate(double angular_speed, double relative_angle, bool clockwise){
+
+    geometry_msgs::Twist vel_msg;
+    //set a random linear velocity in the x-axis
+    vel_msg.linear.x = 0;
+    vel_msg.linear.y = 0;
+    vel_msg.linear.z = 0;
+    //set a random angular velocity in y-axis
+    vel_msg.angular.x = 0;
+    vel_msg.angular.y = 0;
+    
+    if(clockwise)
+    {
+        vel_msg.angular.z = -abs(angular_speed);
+    }  
+    else
+    {
+        vel_msg.angular.z = abs(angular_speed);
+    }   
+
+    //initializing variables:
+    double current_angle = 0.0;
+    double t0 = ros::Time::now().toSec();
+    ros::Rate loop_rate(10);
+
+    do{
+        velocity_publisher.publish(vel_msg);
+        double t1 = ros::Time::now().toSec();
+        current_angle = angular_speed * (t1-t0);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }while(current_angle<relative_angle);
+
+    vel_msg.angular.z = 0;
+    velocity_publisher.publish(vel_msg);
+    
+}
+
+double degrees2radians(double angle_in_degrees){
+    return angle_in_degrees *PI /180.0;
+}
+
 
