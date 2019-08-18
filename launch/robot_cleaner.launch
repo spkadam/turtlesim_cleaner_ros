@@ -1,0 +1,4 @@
+<launch>
+    <node name = "turtlesim_node" pkg= "turtlesim" type = "turtlesim_node" output="screen"/>
+    <node name = "turtlesim_cleaner_ros_node" pkg = "turtlesim_cleaner_ros" type = "turtlesim_cleaner_ros_node" output = "screen" />
+</launch>
