@@ -54,11 +54,11 @@ void move(double speed, double distance, bool isForward){
     //set a random linear velocity in x-axis
     if (isForward)
     {
-        vel_msg.linear.x = -abs(speed);
+        vel_msg.linear.x = abs(speed);
     }
     else
     {
-        vel_msg.linear.x = abs(speed);
+        vel_msg.linear.x = -abs(speed);
     }
     vel_msg.linear.y = 0;
     vel_msg.linear.z = 0;
@@ -71,7 +71,7 @@ void move(double speed, double distance, bool isForward){
     //t0:current time
     double t0 = ros::Time::now().toSec();
     double curr_distance = 0;
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(100);
     //loop
     //publish Twist message (i.e velocity)
     //estimate the distance by speed* (t1-t0)
