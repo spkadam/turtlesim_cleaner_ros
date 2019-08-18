@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/sam/catkin_ws/devel/include/**",
+                "/opt/ros/kinetic/include/**",
+                "/home/sam/catkin_ws/src/Forklift/autobot_loco/include/**",
+                "/home/sam/catkin_ws/src/Forklift/forklift_description/include/**",
+                "/home/sam/catkin_ws/src/sambot_description/include/**",
+                "/home/sam/catkin_ws/src/turtlesim_cleaner_ros/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
