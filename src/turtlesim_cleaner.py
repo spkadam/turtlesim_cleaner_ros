@@ -143,9 +143,10 @@ if __name__ == "__main__":
         pose_subscriber = rospy.Subscriber(position_topic, Pose, poseCallback)
         time.sleep(2)
 
-        #move(1.0, 2.0, False) #True and false to change direction
-        #rotate(30, 90, False)
-        go_to_goal(7.0,8.0)
+        move(0.3, 0.5, False) #True and false to change direction
+        time.sleep(1.0)
+        rotate(90, 90, False)
+        #go_to_goal(7.0,8.0)
 
     except rospy.ROSInterruptException:
         rospy.loginfo("node terminated.")
