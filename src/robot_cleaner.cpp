@@ -31,6 +31,7 @@ double setDesiredOrientation (double desired_angle_radians);
 void poseCallback(const turtlesim::Pose::ConstPtr & pose_message);
 void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance);
 void gridClean();
+void spriralClean();
 
 int main(int argc, char **argv)
 {
@@ -84,7 +85,9 @@ int main(int argc, char **argv)
     moveGoal(goal_pose, 0.01);
     loop_rate.sleep(); **/
     
-    gridClean();
+    //gridClean();
+
+    spriralClean();
 
     ros::spin();
 
@@ -271,4 +274,38 @@ void gridClean(){
     move(2.0, 9.0, true);
 
     double distance = getDistance(turtlesim_pose.x, turtlesim_pose.y, x_max, y_max);
+}
+
+void spriralClean(){
+    geometry_msgs::Twist vel_msg;
+    double count = 0;
+
+    double constant_speed = 4;
+    double vk =1; //vk = vel_msg.linear.x;
+    double wk = 2; //vel_msg.angular.z;
+    double rk = 0.5; //rk = vk/wk;
+    ros::Rate loop(1);
+
+    do{
+        rk = rk+0.5;
+        vel_msg.linear.x = rk;
+        vel_msg.linear.y = 0;
+        vel_msg.linear.z = 0;
+
+        vel_msg.angular.x = 0;
+        vel_msg.angular.y = 0;
+        vel_msg.angular.z = constant_speed; //((vk)/(0.5+rk));
+
+        cout << "vel_msg.linear.x = " << vel_msg.linear.x << endl;
+        cout << "vel_msg.angular.z = " << vel_msg.angular.z << endl;
+        velocity_publisher.publish(vel_msg);
+        ros::spinOnce();
+        loop.sleep();
+
+        cout << rk << "," << vk << "," << wk << endl;
+
+    }while((turtlesim_pose.x<10.5)&&(turtlesim_pose.y<10.5));
+    vel_msg.linear.x = 0;
+    velocity_publisher.publish(vel_msg);
+
 }
