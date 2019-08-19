@@ -17,6 +17,9 @@ ros::Subscriber pose_subscriber;
 turtlesim::Pose turtlesim_pose;
 
 using namespace std;
+
+const double x_max = 11.0;
+const double y_max = 11.0;
 const double PI = 3.14159265359;
 //method to move the robot straight
 //declaring move method
@@ -27,6 +30,7 @@ double degrees2radians(double angle_in_degrees);
 double setDesiredOrientation (double desired_angle_radians);
 void poseCallback(const turtlesim::Pose::ConstPtr & pose_message);
 void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance);
+void gridClean();
 
 int main(int argc, char **argv)
 {
@@ -71,14 +75,16 @@ int main(int argc, char **argv)
     setDesiredOrientation(degrees2radians(-60));
     loop_rate.sleep();
     setDesiredOrientation(degrees2radians(0));**/
-    turtlesim::Pose goal_pose;
+
+
+    /**turtlesim::Pose goal_pose;
     goal_pose.x = 1;
     goal_pose.y = 1;
     goal_pose.theta = 0;
     moveGoal(goal_pose, 0.01);
-    loop_rate.sleep();
+    loop_rate.sleep(); **/
     
-
+    gridClean();
 
     ros::spin();
 
@@ -181,7 +187,7 @@ double degrees2radians(double angle_in_degrees){
 double setDesiredOrientation(double desired_angle_radians){
     double relative_angle_radians = desired_angle_radians - turtlesim_pose.theta;
     bool clockwise = ((relative_angle_radians<0)?true:false);
-    //cout<<desired_angle_radians<<","<<turtlesim_pose.theta<<","<<relative_angle_radians<<","<<
+    //cout<<desired_angle_radians<<","<<turtlesim_pose.theta<<","<<relative_angle_radians<<","<<clockwise<<endl;
     rotate(abs(relative_angle_radians),abs(relative_angle_radians), clockwise);
 }
 
@@ -195,16 +201,24 @@ void poseCallback(const turtlesim::Pose::ConstPtr & pose_message){
 double getDistance(double x1, double y1, double x2, double y2){
     return sqrt(pow((x1-x2),2)+pow((y1-y2),2));
 }
+
 void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance){
 
     geometry_msgs::Twist vel_msg;
 
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(10);
+    double E = 0.0;
     do{
         /**** Proportional Controller *****/
+        double Kp = 1.0;
+        double Ki = 0.02;
+
+        double e = getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y);
+        double E = E + e;
 
         //linear velocity in the x-axis
-        vel_msg.linear.x = 1.5*getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y);
+        //vel_msg.linear.x = 1.5*getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y);
+        vel_msg.linear.x = (Kp*e);
         vel_msg.linear.y = 0;
         vel_msg.linear.z = 0;
         //angular velocity in the z-axis
@@ -217,7 +231,7 @@ void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance){
         ros::spinOnce();
         loop_rate.sleep();
     
-    }while(getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y)>distance_tolerance);
+    }while(getDistance(turtlesim_pose.x, turtlesim_pose.y, goal_pose.x, goal_pose.y) > distance_tolerance);
     cout << "End move goal "<< endl;
     vel_msg.linear.x = 0;
     vel_msg.angular.z = 0;
@@ -225,4 +239,36 @@ void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance){
 
 }
 
+void gridClean(){
+    ros::Rate loop(0.5);
+    turtlesim::Pose pose;
+    pose.x = 1;
+    pose.y = 1;
+    pose.theta = 0;
+    moveGoal(pose, 0.01);
+    loop.sleep();
+    setDesiredOrientation(0);
+    loop.sleep();
 
+    move (2.0, 9.0 ,true);
+    loop.sleep();
+    rotate(degrees2radians(10), degrees2radians(90), false);
+    loop.sleep();
+    move(2.0, 9.0, true);
+
+    rotate(degrees2radians(10), degrees2radians(90), false);
+    loop.sleep();
+    move(2.0, 1.0, true);
+    rotate(degrees2radians(10), degrees2radians(90), false);
+    loop.sleep();
+    move(2.0, 9.0, true);
+
+    rotate(degrees2radians(30), degrees2radians(90), true);
+    loop.sleep();
+    move(2.0, 1.0, true);
+    rotate(degrees2radians(30), degrees2radians(90), true);
+    loop.sleep();
+    move(2.0, 9.0, true);
+
+    double distance = getDistance(turtlesim_pose.x, turtlesim_pose.y, x_max, y_max);
+}
